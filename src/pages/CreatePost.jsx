@@ -6,6 +6,7 @@ import './CreatePost.css';
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
     const US_STATES = [
             'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
             'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia',
@@ -173,7 +174,7 @@ const CreatePost = () => {
             alert(`Post Created Successfully! Status: ${status}`);
     
             // Navigate after successful insert
-            window.location = '/home';
+            navigate('/home');
     
         } catch (error) {
             console.error("Error creating new post:", error.message);

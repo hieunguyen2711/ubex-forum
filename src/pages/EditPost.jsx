@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useRef} from "react";
 import { supabase } from "../client";
-import SideNav from "../components/SideNav";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import './EditPost.css';
 
 const EditPost = () => {
+    const navigate = useNavigate();
     const fileInputRef = useRef(null);
     const US_STATES = [
             'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
@@ -212,7 +212,7 @@ const EditPost = () => {
             alert(`Post Created Successfully! Status: ${status}`);
     
             // Navigate after successful insert
-            window.location = '/home';
+            navigate('/home');
     
         } catch (error) {
             console.error("Error creating new post:", error.message);
@@ -270,7 +270,7 @@ const EditPost = () => {
                 .eq('id', id);
             if (error) { throw error};
             
-            window.location = '/home';
+            navigate('/home');
         } catch (error) {
             console.log("Error deleting post:", error.message);
         }
