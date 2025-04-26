@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+
+# Firebase config
+src/firebase/*
+!src/firebase/firebase.js
