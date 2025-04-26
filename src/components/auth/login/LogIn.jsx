@@ -3,6 +3,8 @@ import { Navigate, Link } from 'react-router-dom'
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../../../firebase/auth'
 import { useAuth } from '../../../contexts/authContext'
 import { useNavigate } from 'react-router-dom'
+import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa'
+import './LogIn.css'
 
 const LogIn = () => {
     const { userLoggedIn } = useAuth()
@@ -27,7 +29,6 @@ const LogIn = () => {
                             : 'Failed to log in. Please try again.'
                     
                 )
-                // setIsSigningIn(false)
                 setEmail('');
                 setPassword('');
                 
@@ -50,22 +51,56 @@ const LogIn = () => {
     return (
         <div>
             {userLoggedIn && <Navigate to="/home" />}
-            <div className="flex flex-col items-center justify-center h-screen">
-                <h1 className="text-3xl font-bold mb-4">Log In</h1>
-                <form onSubmit={onSubmit} className="flex flex-col w-80">
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="mb-2 p-2 border border-gray-300 rounded" required />
-                    <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="mb-2 p-2 border border-gray-300 rounded" required />
-                    <button type="submit" className={`bg-blue-500 text-white p-2 rounded ${isSigningIn ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSigningIn}>Log In</button>
-                </form>
-                <button onClick={onGoogleSignIn} className={`bg-red-500 text-white p-2 rounded mt-4 ${isSigningIn ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSigningIn}>Log In with Google</button>
-                {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
-                <p className="mt-4">Don't have an account? <Link to="/signup" className="text-blue-500">Sign Up</Link></p>
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-header">
+                        <h1>Log In</h1>
+                    </div>
+                    <form onSubmit={onSubmit} className="login-form">
+                        <div className="form-group">
+                            <FaEnvelope className="form-icon" />
+                            <input 
+                                type="email" 
+                                placeholder="Email" 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                required 
+                            />
+                        </div>
+                        <div className="form-group">
+                            <FaLock className="form-icon" />
+                            <input 
+                                type="password" 
+                                placeholder="Password" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                required 
+                            />
+                        </div>
+                        <button 
+                            type="submit" 
+                            className="login-btn" 
+                            disabled={isSigningIn}
+                        >
+                            {isSigningIn ? 'Signing in...' : 'Log In'}
+                        </button>
+                    </form>
+                    <button 
+                        onClick={onGoogleSignIn} 
+                        className="google-btn" 
+                        disabled={isSigningIn}
+                    >
+                        <FaGoogle />
+                        {isSigningIn ? 'Signing in...' : 'Continue with Google'}
+                    </button>
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
+                    <p className="signup-link">
+                        Don't have an account? <Link to="/signup">Sign Up</Link>
+                    </p>
+                </div>
             </div>
-            {/* <form action=""> */}
-
-            {/* </form> */}
         </div>
     )
 }
 
-export default LogIn;
+export default LogIn

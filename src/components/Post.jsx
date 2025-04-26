@@ -3,7 +3,7 @@ import { supabase } from "../client";
 import { useAuth } from "../contexts/authContext";
 import { Link, useLocation } from "react-router-dom";
 import { parseISO, format } from 'date-fns';
-import ReadPost from "../pages/ReadPost";
+import { FaArrowUp, FaEdit, FaComment } from 'react-icons/fa';
 // import './Post.css';
 
 const Post = ({ post }) => {
@@ -12,7 +12,7 @@ const Post = ({ post }) => {
     const [displayName, setDisplayName] = useState('');
     const [upvotes, setUpvotes] = useState(post.upvotes || 0);
     const [isUpdating, setIsUpdating] = useState(false);
-    const date  = parseISO(post.created_at);
+    const date = parseISO(post.created_at);
 
     const handleUpvote = async () => {
         if (isUpdating) return;
@@ -33,7 +33,6 @@ const Post = ({ post }) => {
             console.error("Error update upvotes:", error.message);
         } finally {
             setIsUpdating(false);
-            console.log("upvote update successfully");
         }
     }
 
@@ -42,8 +41,6 @@ const Post = ({ post }) => {
             setDisplayName(currentUser.displayName || currentUser.email.split('@')[0]);
         }
     }, [currentUser]);
-
-
 
     return (
         <div className="post-container">
@@ -76,22 +73,40 @@ const Post = ({ post }) => {
                 
                 {post.url && (
                     <div className="post-image">
-                        <img src={post.url} alt="Post content" width="350px" onClick={() => window.open(post.url)} style={{cursor: 'pointer'}}/>
+                        <img 
+                            src={post.url} 
+                            alt="Post content" 
+                            onClick={() => window.open(post.url)} 
+                        />
                     </div>
                 )}
             </div>
 
             <div className="post-footer">
                 <div className="post-meta">
-                    <span className="post-username">Posted on {format(date, "MMMM dd, yyyy 'at' HH:mm:ss")} by {post.author ? post.author.split('@')[0] : 'Anonymous'}</span>
-                    <button className="post-upvote-btn" onClick={handleUpvote} disabled={isUpdating}>
-                        <span className="arrow">↑</span>
-                        <span className="count">{upvotes}</span>
-                    </button>
-                    {currentUser && currentUser.email === post.author && location.pathname !== `/view/${post.id}` && (<Link to={`/edit/${post.id}`}>Edit your post here</Link>)}
-                    
-                    
-                    {location.pathname !== `/view/${post.id}` && (<Link to={`/view/${post.id}`}>View Comments</Link>)}
+                    <span className="post-username">
+                        Posted on {format(date, "MMMM dd, yyyy 'at' HH:mm:ss")} by {post.author ? post.author.split('@')[0] : 'Anonymous'}
+                    </span>
+                    <div className="post-actions">
+                        <button 
+                            className="post-upvote-btn" 
+                            onClick={handleUpvote} 
+                            disabled={isUpdating}
+                        >
+                            <FaArrowUp />
+                            <span className="count">{upvotes}</span>
+                        </button>
+                        {currentUser && currentUser.email === post.author && location.pathname !== `/view/${post.id}` && (
+                            <Link to={`/edit/${post.id}`} className="edit-link">
+                                <FaEdit /> Edit
+                            </Link>
+                        )}
+                        {location.pathname !== `/view/${post.id}` && (
+                            <Link to={`/view/${post.id}`} className="view-link">
+                                <FaComment /> View Comments
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

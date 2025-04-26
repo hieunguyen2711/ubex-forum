@@ -115,7 +115,7 @@ const ReadPost = () => {
                         {comments.map((comment) => (
                             <div key={comment.id} className="comment">
                                 <p>
-                                    Posted on {format(parseISO(comment.created_at), "MMMM dd, yyyy 'at' HH:mm:ss")} by {comment.username || 'Anonymous'}: {comment.comment}
+                                     {comment.username || 'Anonymous'} said: {`"${comment.comment}"`} on {format(parseISO(comment.created_at), "MMMM dd, yyyy ")}
                                 </p>
                             </div>
                         ))}

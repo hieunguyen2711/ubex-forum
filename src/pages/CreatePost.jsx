@@ -1,6 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import { supabase } from '../client';
 import { useAuth } from "../contexts/authContext";
+import { useNavigate } from 'react-router-dom';
+import './CreatePost.css';
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
@@ -45,11 +47,21 @@ const CreatePost = () => {
     const [imageFile, setImageFile] = useState(null);
     const [uploading, setUploading] = useState(false);
 
+    const fileInputRef = useRef(null);
+
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
         }
     }
+
+    const handleDeleteImage = (e) => {
+        e.preventDefault(); // Prevent form submission
+        setImageFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
 
     const uploadImage = async () => {
         try {
@@ -199,14 +211,23 @@ const CreatePost = () => {
             <h2>Create your post and share your experience now!</h2>
             <div className="new-post-container">
                 <form onSubmit={onSubmit}>
-                    <label >Title</label>
-                    <input type="text" placeholder="Enter your post title" onChange={(e) => setPost({...post, title: e.target.value})} />
-                <div className="form-group">
-                        <label htmlFor="country">Country:</label>
-                        <select 
-                            id="Country"
+                    <div className="form-group">
+                        <label htmlFor="title">Title</label>
+                        <input
+                            type="text"
+                            id="title"
+                            value={post.title}
+                            onChange={(e) => setPost({ ...post, title: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="country">Country</label>
+                        <select
+                            id="country"
                             name="country"
-                            // value={post.village}
+                            value={selectedCountry}
                             onChange={handleChange}
                             required
                         >
@@ -218,12 +239,13 @@ const CreatePost = () => {
                             ))}
                         </select>
                     </div>
+
                     <div className="form-group">
-                        <label htmlFor="states">State:</label>
-                        <select 
-                            id="states"
+                        <label htmlFor="state">State/Province</label>
+                        <select
+                            id="state"
                             name="states"
-                            // value={post.village}
+                            value={selectedState}
                             onChange={handleChange}
                             disabled={selectedCountry !== "United States"}
                             required
@@ -234,49 +256,88 @@ const CreatePost = () => {
                             ))}
                         </select>
                     </div>
+
                     <div className="form-group">
-                        <label >City:</label>
-                        <input 
-                            type="text" 
+                        <label htmlFor="city">City</label>
+                        <input
+                            type="text"
+                            id="city"
                             name="city"
                             value={selectedCity}
-                            placeholder="Enter a city"
                             onChange={handleChange}
                             required
                         />
                     </div>
-                    <h3>Share your thoughts on Uber's price range in your location:</h3>
-                    <textarea name="price" id="price-thoughts" rows="2" cols="40" placeholder="Enter here" onChange={(e) => setPost({...post, priceThoughts: e.target.value})} required></textarea><br />
-                    <h3>Share your wait time for Uber in your location</h3>
-                    <textarea name="time" id="waittime-thoughts" rows="2" cols="40" placeholder="Enter here" onChange={(e) => setPost({...post, waitTimeThoughts: e.target.value})} required></textarea><br />
-                    <h3>Any other comments?</h3>
-                    <textarea name="des" id="comments" rows="8" cols="40" placeholder="Enter here" onChange={(e) => setPost({...post, content: e.target.value})}></textarea><br />
+
+                    <h3>Price Thoughts</h3>
+                    <div className="form-group horizontal">
+                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <textarea
+                                id="price_thoughts"
+                                className="price-thoughts"
+                                value={post.priceThoughts}
+                                onChange={(e) => setPost({ ...post, priceThoughts: e.target.value })}
+                                cols="30"
+                                rows="2"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <h3>Wait Time Thoughts</h3>
+                    <div className="form-group horizontal">
+                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <textarea
+                                id="wait_time_thoughts"
+                                className="wait-time-thoughts"
+                                value={post.waitTimeThoughts}
+                                onChange={(e) => setPost({ ...post, waitTimeThoughts: e.target.value })}
+                                cols="30"
+                                rows="2"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <h3>Additional Comments</h3>
+                    <div className="form-group horizontal">
+                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <textarea
+                                id="additional_comments"
+                                className="additional-comments"
+                                value={post.content}
+                                onChange={(e) => setPost({ ...post, content: e.target.value })}
+                                cols="30"
+                                rows="6"
+                            />
+                        </div>
+                    </div>
+
                     <div className="form-group">
-                        <label htmlFor="image">Upload Image:</label>
+                        <label htmlFor="image">Upload Image (Optional)</label>
                         <input
                             type="file"
                             id="image"
                             accept="image/*"
                             onChange={handleImageChange}
-                            className="form-control"
+                            ref={fileInputRef}
                         />
                         {imageFile && (
-                            <div className="preview">
-                                <img
-                                    src={URL.createObjectURL(imageFile)}
-                                    alt="Preview"
-                                    style={{ maxWidth: '200px' }}
-                                />
-                            </div>
+                            <>
+                                <button onClick={handleDeleteImage}>Remove Image</button>
+                                <div className="preview">
+                                    <img
+                                        src={URL.createObjectURL(imageFile)}
+                                        alt="Preview"
+                                    />
+                                </div>
+                            </>
                         )}
                     </div>
-                    <button 
-                        type="submit" 
-                        disabled={uploading}
-                    >
+
+                    <button type="submit" disabled={uploading}>
                         {uploading ? 'Creating Post...' : 'Create Post'}
                     </button>
-                
                 </form>
                 {/* <button>Cancel</button> */}
             </div>

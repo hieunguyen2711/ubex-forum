@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from "react";
 import { supabase } from "../client";
 import SideNav from "../components/SideNav";
 import { Link, useParams } from "react-router-dom";
+import './EditPost.css';
 
 const EditPost = () => {
     const fileInputRef = useRef(null);
@@ -87,6 +88,30 @@ const EditPost = () => {
         setImageFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDeleteExistingImage = async (e) => {
+        e.preventDefault();
+        try {
+            if (prevImgFile) {
+                const { error: storageError } = await supabase.storage
+                    .from('ubex-photos')
+                    .remove([prevImgFile]);
+
+                if (storageError) {
+                    console.error("Error deleting picture in storage:", storageError.message);
+                    throw storageError;
+                }
+            }
+            
+            // Clear the image URL from the post
+            setNewImageUrl('');
+            setPrevImgFile(null);
+            
+        } catch (error) {
+            console.error("Error deleting existing image:", error.message);
+            alert("Failed to delete image. Please try again.");
         }
     };
 
@@ -204,20 +229,20 @@ const EditPost = () => {
                 setSelectedCountry(value);
                 setSelectedState('');
                 setSelectedCity('');
-                console.log(value);
+                setPost({...post, country: value, state: '', city: ''});
                 break;
             case 'states':
                 setSelectedState(value);
                 setSelectedCity('');
-                console.log(value);
+                setPost({...post, state: value, city: ''});
                 break;
             case 'city':
                 setSelectedCity(value);
-                console.log(value);
-
+                setPost({...post, city: value});
+                break;
+            default:
+                break;
         }
-
-        
     }
 
     const handleDeletePost = async (e) => {
@@ -259,16 +284,24 @@ const EditPost = () => {
             <h2>Edit your post</h2>
             <div className="new-post-container">
                 <form onSubmit={onSubmit}>
-                    <label >Title</label>
-                    <input type="text" placeholder="Enter your post title" value={post.title} onChange={(e) => setPost({...post, title: e.target.value})} />
-                <div className="form-group">
-                        <label htmlFor="country">Country:</label>
+                    <div className="form-group">
+                        <label htmlFor="title">Title</label>
+                        <input 
+                            type="text" 
+                            id="title"
+                            placeholder="Enter your post title" 
+                            value={post.title || ''} 
+                            onChange={(e) => setPost({...post, title: e.target.value})} 
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="country">Country</label>
                         <select 
-                            id="Country"
+                            id="country"
                             name="country"
-                            // value={post.village}
                             onChange={handleChange}
-                            value={post.country}
+                            value={selectedCountry}
                             required
                         >
                             <option value="">Select a Country</option>
@@ -279,12 +312,13 @@ const EditPost = () => {
                             ))}
                         </select>
                     </div>
+
                     <div className="form-group">
-                        <label htmlFor="states">State:</label>
+                        <label htmlFor="states">State</label>
                         <select 
                             id="states"
                             name="states"
-                            value={post.state}
+                            value={selectedState}
                             onChange={handleChange}
                             disabled={selectedCountry !== "United States"}
                             required
@@ -295,31 +329,63 @@ const EditPost = () => {
                             ))}
                         </select>
                     </div>
+
                     <div className="form-group">
-                        <label >City:</label>
+                        <label htmlFor="city">City</label>
                         <input 
                             type="text" 
+                            id="city"
                             name="city"
-                            value={post.city}
+                            value={selectedCity}
                             placeholder="Enter a city"
                             onChange={handleChange}
                             required
                         />
                     </div>
+
                     <h3>Share your thoughts on Uber's price range in your location:</h3>
-                    <textarea name="price" id="price-thoughts" rows="2" cols="40" placeholder="Enter here" value={post.price} onChange={(e) => setPost({...post, priceThoughts: e.target.value})} required></textarea><br />
-                    <h3>Share your wait time for Uber in your location</h3>
-                    <textarea name="time" id="waittime-thoughts" rows="2" cols="40" placeholder="Enter here" value={post.waittime} onChange={(e) => setPost({...post, waitTimeThoughts: e.target.value})} required></textarea><br />
-                    <h3>Any other comments?</h3>
-                    <textarea name="des" id="comments" rows="8" cols="40" placeholder="Enter here" value={post.content} onChange={(e) => setPost({...post, content: e.target.value})}></textarea><br />
                     <div className="form-group">
-                        <label htmlFor="image">Upload Image:</label>
+                        <textarea 
+                            name="price" 
+                            id="price-thoughts" 
+                            placeholder="Enter here" 
+                            value={post.price} 
+                            onChange={(e) => setPost({...post, priceThoughts: e.target.value})} 
+                            required
+                        ></textarea>
+                    </div>
+
+                    <h3>Share your wait time for Uber in your location</h3>
+                    <div className="form-group">
+                        <textarea 
+                            name="time" 
+                            id="waittime-thoughts" 
+                            placeholder="Enter here" 
+                            value={post.waittime} 
+                            onChange={(e) => setPost({...post, waitTimeThoughts: e.target.value})} 
+                            required
+                        ></textarea>
+                    </div>
+
+                    <h3>Any other comments?</h3>
+                    <div className="form-group">
+                        <textarea 
+                            name="des" 
+                            id="comments" 
+                            placeholder="Enter here" 
+                            value={post.content} 
+                            onChange={(e) => setPost({...post, content: e.target.value})}
+                        ></textarea>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="image">Upload Image</label>
                         <input
                             type="file"
                             id="image"
                             accept="image/*"
                             onChange={handleImageChange}
-                            className="form-control"
+                            ref={fileInputRef}
                         />
                         {imageFile && (
                             <>
@@ -328,31 +394,30 @@ const EditPost = () => {
                                     <img
                                         src={URL.createObjectURL(imageFile)}
                                         alt="New Image preview"
-                                        style={{maxWidth: "200px"}}
-                                    
                                     />
                                 </div>
                             </>
                         )}
                         
                         {!imageFile && newImageUrl && (
-                            <img 
-                                src={newImageUrl}
-                                alt="Post picture"
-                                style={{maxWidth: "200px"}}
-
-                            />
+                            <>
+                                <button onClick={handleDeleteExistingImage}>Delete Existing Image</button>
+                                <div className="image-preview">
+                                    <img 
+                                        src={newImageUrl}
+                                        alt="Post picture"
+                                    />
+                                </div>
+                            </>
                         )}
-
-        
                     </div>
+
                     <button 
                         type="submit" 
                         disabled={uploading}
                     >
                         {uploading ? 'Saving...' : 'Save your changes'}
                     </button>
-                
                 </form>
                 <button onClick={handleDeletePost}>Delete Post</button>
                 <Link to='/home'>Cancel</Link>

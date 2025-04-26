@@ -35,6 +35,7 @@ const Forum = () => {
     const [posts, setPosts] = useState([]);
     const [sortOption, setSortOption] = useState('1');
     const [searchInput, setSearchInput] = useState("");
+    const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(true);
 
     useEffect(() => {
         const fetchCountries = async () => {
@@ -187,34 +188,73 @@ const Forum = () => {
             setError(error.message);
         }
     };
-    
+
+    const handleReset = async () => {
+        // Reset all filter states
+        setSelectedCountry('');
+        setSelectedState('');
+        setSelectedCity('');
+        setSearchInput('');
+        setSortOption('1');
+
+        try {
+            // Fetch all posts with default sorting (recent)
+            const { data, error } = await supabase
+                .from('ubex-db')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            setPosts(data);
+        } catch (error) {
+            console.error('Error resetting posts:', error.message);
+            setError(error.message);
+        }
+    };
+
     return (
         <div className="forum-container">
-            {/* <SideNav /> */}
             <div className="forum-main">
-                <h1>Forum</h1>
-                <input
-                    placeholder="Search for post title here"
-                    type="text"
-                    id="title-search"
-                    value={searchInput}
-                    onChange={(e => setSearchInput(e.target.value))}
+                <div className="forum-header">
+                    <h1>Forum</h1>
+                </div>
                 
-                />
-                <label htmlFor="name">Sort</label>
-                <select className="sort-select" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-                    <option value="1">Recent</option>
-                    <option value="2">Oldest</option>
-                    <option value="3">Low to High</option>
-                    <option value="4">Hight to Low</option>
-                </select>
-                <form onSubmit={onSubmit} className="forum-form">
+                <div className="search-sort-container">
+                    <input
+                        className="search-input"
+                        placeholder="Search for post title here"
+                        type="text"
+                        id="title-search"
+                        value={searchInput}
+                        onChange={(e => setSearchInput(e.target.value))}
+                    />
+                    <select 
+                        className="sort-select" 
+                        value={sortOption} 
+                        onChange={(e) => setSortOption(e.target.value)}
+                    >
+                        <option value="1">Recent</option>
+                        <option value="2">Oldest</option>
+                        <option value="3">Low to High</option>
+                        <option value="4">High to Low</option>
+                    </select>
+                </div>
+
+                <form onSubmit={onSubmit} className={`forum-form ${isFiltersCollapsed ? 'collapsed' : ''}`}>
+                    <button 
+                        type="button" 
+                        className="toggle-filters"
+                        onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+                    >
+                        {isFiltersCollapsed ? 'Show Filters' : 'Hide Filters'}
+                    </button>
                     <div className="form-group">
                         <label htmlFor="country">Country:</label>
                         <select 
                             id="Country"
                             name="country"
-                            // value={post.village}
+                            value={selectedCountry}
                             onChange={handleChange}
                             required
                         >
@@ -231,7 +271,7 @@ const Forum = () => {
                         <select 
                             id="states"
                             name="states"
-                            // value={post.village}
+                            value={selectedState}
                             onChange={handleChange}
                             disabled={selectedCountry !== "United States"}
                             required
@@ -248,18 +288,25 @@ const Forum = () => {
                             type="text" 
                             name="city"
                             id="city"
+                            value={selectedCity}
                             placeholder="Enter a city"
                             onChange={handleChange}
                         />
                     </div>
-                    <button type="submit">Filter</button>
+                    <div className="filter-buttons">
+                        <button type="submit" className="filter-btn">Filter</button>
+                        <button type="button" className="reset-btn" onClick={handleReset}>Reset All</button>
+                    </div>
                 </form>
-                {posts && posts.map((post) => (
-                    <Post key={post.id} post={post}/>
-                )) }
+
+                <div className="posts-grid">
+                    {posts && posts.map((post) => (
+                        <Post key={post.id} post={post}/>
+                    ))}
+                </div>
             </div>
         </div>
-    )
+    );
 };
 
 export default Forum;
