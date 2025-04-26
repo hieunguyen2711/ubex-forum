@@ -1,0 +1,123 @@
+.side-nav {
+    width: 250px;
+    height: 100vh;
+    background-color: #1a1a1a;
+    color: white;
+    padding: 30px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    gap: 20px;
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    box-sizing: border-box; /* Include padding in width calculation */
+    padding: 5px 5px;
+}
+
+.side-nav__logo {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #242424;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.side-nav__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.side-nav__title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.side-nav__search {
+    width: 100%;
+    position: relative;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.side-nav__search-input {
+    width: 100%;
+    padding: 8px 12px;
+    padding-left: 32px;
+    border-radius: 4px;
+    border: none;
+    background-color: #242424;
+    color: white;
+    box-sizing: border-box; /* Include padding in width calculation */
+    max-width: 100%; /* Ensure input doesn't exceed container */
+}
+
+.side-nav__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background-color: #242424;
+    border-radius: 8px;
+    margin-top: auto;
+    width: 90%;
+    max-width: 230px;
+    overflow: hidden;
+}
+
+.side-nav__user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.side-nav__user-info {
+    flex: 1;
+    min-width: 0; /* Allows text truncation to work */
+    overflow: hidden;
+}
+
+.side-nav__user-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-nav__user-email {
+    font-size: 12px;
+    color: #666666;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-nav__logout-btn {
+    display: inline-block;
+    width: 90%;
+    padding: 10px;
+    background-color: #242424;  /* Darker button */
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 12px;
+    transition: background-color 0.2s;
+}
+
+.side-nav__logout-btn:hover {
+    background-color: #333333;  /* Slightly lighter on hover */
+}
